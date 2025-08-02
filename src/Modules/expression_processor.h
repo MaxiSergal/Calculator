@@ -22,7 +22,7 @@ class ExpressionProcessor : public QObject
     void parseExpression();
 
   signals:
-    void getRequest(Calculator::Request &);
+    void getRequest(Calculator::Request * const);
     void sendResponse(Calculator::Response);
 
   public:

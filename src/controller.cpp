@@ -31,8 +31,16 @@ class ExpressionModuleFactory
 Controller::Controller(QObject *parent)
 try : QObject(parent)
 {
-  expressionModules_.reserve(5);
+  QObject::connect(&mainWindow, &MainWindow::sendRequest,   this,        &Controller::addRequest      );
+  QObject::connect(this,        &Controller::responseReady, &mainWindow, &MainWindow::setResponseToQml);
+  QObject::connect(&mainWindow, &MainWindow::getResponse,   this,        &Controller::getResponse     );
 
+  QUrl qmlUrl(QStringLiteral("qrc:/qml/main.qml"));
+  if (!mainWindow.loadQml(qmlUrl))
+    throw std::logic_error("!mainWindow.loadQml(qmlUrl)");
+
+
+  expressionModules_.reserve(5);
   expressionModules_.push_back(ExpressionModuleFactory::createExpressionModule(this));
 }
 catch(...)
@@ -49,24 +57,25 @@ Controller::~Controller()
 void Controller::addRequest(const Calculator::Request &request)
 {
   requests_.enqueue(request);
+  // emit requestQueueSizeChanged(requests_.size());
   emit requestReady();
 }
 
 void Controller::addResponse(const Calculator::Response &response)
 {
-  qDebug() << response.result;
   responses_.enqueue(response);
+  // emit responseQueueSizeChanged(responses_.size());
   emit responseReady();
 }
 
-void Controller::getRequest(Calculator::Request &request)
+void Controller::getRequest(Calculator::Request * const request)
 {
-  if(!requests_.tryDequeue(request))
-    request.error_code = -1;
+  if(!requests_.tryDequeue(*request))
+    request->error_code = -1;
 }
 
-void Controller::getResponse(Calculator::Response &response)
+void Controller::getResponse(Calculator::Response * const response)
 {
-  if(!responses_.tryDequeue(response))
-    response.error_code = -1;
+  if(!responses_.tryDequeue(*response))
+    response->error_code = -1;
 }

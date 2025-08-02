@@ -28,6 +28,8 @@ class ThreadSafeQQueue
       out = queue_.dequeue();
       return true;
     }
+
+    inline qsizetype size() { queue_.size(); }
 };
 
 #endif // THREADSAFEQQUEUE_H

@@ -6,7 +6,9 @@ Rectangle
 {
     id: display
 
-    property real delaySeconds: 0.0
+    property real delaySeconds:   0.0
+    property int  requestsCount:  0
+    property int  responsesCount: 0
 
     Layout.fillWidth: true
     Layout.minimumHeight: 100
@@ -80,29 +82,86 @@ Rectangle
         elide: Text.ElideRight
     }
 
-    Rectangle
+    RowLayout
     {
-        id: delayBox
+        spacing: 1
 
-        width: 60
-        height: 26
-        color: "#f0f0f0"
-        border.color: "#aaaaaa"
-        radius: 0
-
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.margins: 0
-
-        RowLayout
+        Rectangle
         {
-            anchors.fill: parent
-            anchors.margins: 0
-            spacing: 0
+            id: delayBox
+
+            width: 60
+            height: 26
+            color: "#f0f0f0"
+            border.color: "#aaaaaa"
+            radius: 0
+
+            RowLayout
+            {
+                anchors.fill: parent
+                spacing: 0
+
+                Text
+                {
+                    text: display.delaySeconds.toFixed(1) + " s"
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 14
+                    leftPadding: 5
+
+                    height: parent.height
+                    width:  45
+
+                    Layout.fillWidth: true
+                }
+
+                ColumnLayout
+                {
+                     spacing: 0
+                     width:  15
+                     height: parent.height
+
+                     UpDownButton
+                     {
+                         id: upButton
+                         buttonWidth:  15
+                         buttonHeight: 13
+                         buttonText:   "▲"
+
+                         onClicked:
+                         {
+                             display.delaySeconds = Math.min(display.delaySeconds + 0.5, 10.0);
+                         }
+                     }
+                     UpDownButton
+                     {
+                         id: downButton
+                         buttonWidth:  15
+                         buttonHeight: 13
+                         buttonText:   "▼"
+
+                         onClicked:
+                         {
+                            display.delaySeconds = Math.max(display.delaySeconds - 0.5, 0.0);
+                         }
+                     }
+                }
+            }
+        }
+
+        Rectangle
+        {
+            id: requestsCount
+
+            width: 70
+            height: 26
+            color: "#f0f0f0"
+            border.color: "#aaaaaa"
+            radius: 0
 
             Text
             {
-                text: display.delaySeconds.toFixed(1) + " s"
+                text: "Rqsts: " + display.requestsCount
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
                 font.pixelSize: 14
@@ -114,37 +173,32 @@ Rectangle
                 Layout.fillWidth: true
             }
 
-            ColumnLayout
+        }
+
+        Rectangle
+        {
+            id: responsesCount
+
+            width: 70
+            height: 26
+            color: "#f0f0f0"
+            border.color: "#aaaaaa"
+            radius: 0
+
+            Text
             {
-                 spacing: 0
-                 width:  15
-                 height: parent.height
+                text: "Rspns: " + display.responsesCount
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: 14
+                leftPadding: 5
 
-                 UpDownButton
-                 {
-                     id: upButton
-                     buttonWidth:  15
-                     buttonHeight: 13
-                     buttonText:   "▲"
+                height: parent.height
+                width:  45
 
-                     onClicked:
-                     {
-                         display.delaySeconds = Math.min(display.delaySeconds + 0.5, 10.0);
-                     }
-                 }
-                 UpDownButton
-                 {
-                     id: downButton
-                     buttonWidth:  15
-                     buttonHeight: 13
-                     buttonText:   "▼"
-
-                     onClicked:
-                     {
-                        display.delaySeconds = Math.max(display.delaySeconds - 0.5, 0.0);
-                     }
-                 }
+                Layout.fillWidth: true
             }
+
         }
     }
 }

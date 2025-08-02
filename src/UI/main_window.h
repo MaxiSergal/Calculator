@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QQmlApplicationEngine>
+#include <QVariantMap>
+#include <QJSValue>
 #include <QObject>
 #include <QUrl>
 
@@ -10,31 +12,42 @@
 class MainWindow : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString result READ result WRITE setResult NOTIFY resultChanged FINAL)
-
 
   public:
     MainWindow(QObject * = nullptr);
 
     bool loadQml(const QUrl &qmlUrl);
     inline QQmlApplicationEngine* engine() { return &engine_; }
-    Q_INVOKABLE void getExpression(QString, double);
-    inline QString result() const { return result_; }
+
+    Q_INVOKABLE void receiveRequest(const  QJSValue &);
+    Q_INVOKABLE void receiveResponse(const QJSValue &);
+    Q_INVOKABLE void receiveGeometry(const QJSValue &);
+
 
   signals:
-    void resultChanged();
+
+
+
+
+
+
+
+
+
     void sendRequest(Calculator::Request);
-    // void setResult(const QString &result);
+    void sendGeometry(Calculator::AppGeometry);
+
+    void getResponse(Calculator::Response * const);
+
+    void responseChanged(QVariantMap);
+    void geometryChanged(QVariantMap);
+
+  public slots:
+    void setResponseToQml();
+    void setGeometryToQml();
 
   private:
     QQmlApplicationEngine engine_;
-    QString result_;
-
-    void setResult(const QString &result)
-    {
-      result_ = result;
-      emit resultChanged();
-    }
 };
 
 #endif // MAINWINDOW_H

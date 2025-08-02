@@ -1,4 +1,4 @@
-import QtQuick 6.2
+    import QtQuick 6.2
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 2.15
 
@@ -13,6 +13,14 @@ Window
     readonly property int gridColumns:        4
     readonly property int minButtonWidth:     90
     readonly property int minButtonHeight:    65
+
+    property int lastX: x
+    property int lastY: y
+    property int lastW: width
+    property int lastH: height
+
+    property real normalizedX: x / Screen.width
+    property real normalizedY: y / Screen.height
 
     minimumWidth: minButtonWidth * gridColumns + marginH * 2 + (gridColumns - 1) * buttonGridSpacingH
     minimumHeight: 620
@@ -98,6 +106,134 @@ Window
         }
     }
 
+    FocusScope {
+        id: root
+        focus: true
+        Keys.onPressed: (event) =>
+            {
+                switch (event.key)
+                {
+                    case Qt.Key_0:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_1:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_2:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_3:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_4:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_5:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_6:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_7:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_8:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_9:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad0:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad1:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad2:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad3:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad4:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad5:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad6:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad7:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad8:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Numpad9:
+                        addSymbol(event.text)
+                        break
+                    case Qt.Key_Plus:
+                        addSymbol("+")
+                        break
+                    case Qt.Key_Minus:
+                        addSymbol("−")
+                         break
+                    case Qt.Key_Asterisk:
+                        addSymbol("×")
+                        break
+                    case Qt.Key_Slash:
+                        addSymbol("÷")
+                        break
+                    case Qt.Key_Period:
+                        addSymbol(".")
+                        break
+                    case Qt.Key_Enter:
+                        evaluateExpression()
+                        break
+                    case Qt.Key_Return:
+                        evaluateExpression()
+                        break
+                    case Qt.Key_Backspace:
+                        removeLast()
+                        break
+                }
+
+                event.accepted = true
+        }
+    }
+
+    onXChanged:      handleGeometryChange()
+    onYChanged:      handleGeometryChange()
+    onWidthChanged:  handleGeometryChange()
+    onHeightChanged: handleGeometryChange()
+
+    Connections
+    {
+        target: mainWindow
+        function onResponseChanged(response)
+        {
+            console.log("Got response:", response.result, response.error_code);
+        }
+    }
+
+
+    function handleGeometryChange()
+    {
+        lastX = x
+        lastY = y
+        normalizedX = x / Screen.width
+        normalizedY = y / Screen.height
+        lastW = width
+        lastH = height
+    }
+
+    function restorePosition(normX, normY)
+    {
+        x = normX * Screen.width
+        y = normY * Screen.height
+    }
+
     function addSymbol(sym)
     {
         const ops = ["+", "−", "×", "÷"]
@@ -157,6 +293,10 @@ Window
 
     function evaluateExpression()
     {
+        if(display.getText() === "")
+            return
+        if(display.getText()[display.getText().length - 2] === "=")
+            return
         try
         {
             addSymbol("=")
@@ -167,7 +307,13 @@ Window
                 .replace(/−/g, "-")
 
 
-            mainWindow.getExpression(evalExpr, display.delaySeconds)
+            mainConsole.addText(display.getText(), mainConsole.Color.Red)
+            mainWindow.receiveRequest(
+            {
+                expression: evalExpr,
+                delay: display.delaySeconds,
+                error_code: 0
+            })
             clearExpression()
         }
         catch(e)
@@ -187,7 +333,7 @@ Window
     function clearAll()
     {
         display.clearText()
-//        mainConsole.clearText()
+        mainConsole.clearConsole()
     }
 }
 

@@ -29,7 +29,7 @@ ExpressionProcessor::ExpressionProcessor(QObject *parent) : QObject(parent)
 void ExpressionProcessor::parseExpression() noexcept(false)
 {
   Calculator::Request request;
-  emit getRequest(request);
+  emit getRequest(&request);
 
   QThread::sleep(request.delay);
 
