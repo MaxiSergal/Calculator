@@ -76,6 +76,9 @@ Rectangle
 
     function appendToEntry(id, appendText, color)
     {
+        if(entries.length === 0)
+            return
+
         for(let i = 0; i < entries.length; ++i)
         {
             if(entries[i].id === id)
@@ -98,6 +101,8 @@ Rectangle
     function clearConsole()
     {
         consoleText.text = ">>"
+        entries = []
+        appendToEntry(1, "", 0)
     }
 }
 
