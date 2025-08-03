@@ -6,8 +6,11 @@ Rectangle
 {
     id: mainConsole
 
+    property var entries: []
+
     property var colorArray: ["blue", "green", "red"]
     property int maxLines:   10
+    property int nextId: 1
 
     enum Colors
     {
@@ -68,9 +71,43 @@ Rectangle
         anchors.fill: parent
         onClicked:
         {
-            let updatedText = consoleText.text.replace(/<\/body>/i, "<div style=\"color:" + "red" + ";\">" + ">> Добро пожаловать!" + "</div>");
-            consoleText.text = trimParagraphs(updatedText, maxLines);
+            const id = mainConsole.addEntry("Добро пожаловать", 0);
+            Qt.callLater(() =>
+            {
+                mainConsole.appendToEntry(id, "!", 1);
+            })
         }
+    }
+
+    function addEntry(text, color)
+    {
+        const id = nextId++;
+        const html = "<p><font color=\"" + colorArray[color] + "\">>> " + text + "</font></p>";
+        entries.push({ id: id, html: html });
+        rebuildConsoleText();
+        return id;
+    }
+
+    function appendToEntry(id, appendText, color)
+    {
+        for (let i = 0; i < entries.length; ++i)
+        {
+            if (entries[i].id === id)
+            {
+                const appendHtml = `<font color="${colorArray[color]}">${appendText}</font>`;
+                entries[i].html = entries[i].html.replace(/<\/p>$/, appendHtml + "</p>");
+                break;
+            }
+        }
+        rebuildConsoleText();
+    }
+
+    function rebuildConsoleText()
+    {
+        // Отбираем только последние maxLines HTML-блоков
+        const limited = entries.slice(Math.max(0, entries.length - maxLines));
+        let body = limited.map(entry => entry.html).join("");
+        consoleText.text = "<body>" + body + "</body>";
     }
 
     function trimParagraphs(htmlText, maxLines)

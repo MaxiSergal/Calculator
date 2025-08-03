@@ -22,10 +22,12 @@ class MainWindow : public QObject
     Q_INVOKABLE void receiveRequest(const  QJSValue &);
     Q_INVOKABLE void receiveResponse(const QJSValue &);
     Q_INVOKABLE void receiveGeometry(const QJSValue &);
+    Q_INVOKABLE void reveiveProcessMode(const QJSValue &);
 
 
   signals:
-
+    void requestQueueSizeChanged(qsizetype);
+    void responseQueueSizeChanged(qsizetype);
 
 
 
@@ -36,6 +38,7 @@ class MainWindow : public QObject
 
     void sendRequest(Calculator::Request);
     void sendGeometry(Calculator::AppGeometry);
+    void sendProcessMode(quint8);
 
     void getResponse(Calculator::Response * const);
 
@@ -44,7 +47,7 @@ class MainWindow : public QObject
 
   public slots:
     void setResponseToQml();
-    void setGeometryToQml();
+    void setGeometryToQml(Calculator::AppGeometry);
 
   private:
     QQmlApplicationEngine engine_;

@@ -9,14 +9,16 @@ namespace Calculator
   struct Request
   {
       QString expression;
-      double  delay      {0};
-      int     error_code {0};
+      double       delay      {0};
+      int          error_code {0};
+      unsigned int id         {0};
   };
 
   struct Response
   {
-      QString result;
-      int     error_code {0};
+      QString      result;
+      int          error_code {0};
+      unsigned int id         {0};
   };
 
   struct AppGeometry
@@ -25,8 +27,6 @@ namespace Calculator
       int y {0};
       int width  {0};
       int height {0};
-      double normalizedX {0.};
-      double normalizedY {0.};
   };
 }
 

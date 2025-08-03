@@ -7,6 +7,7 @@
 #include "thread_safe_qqueue.h"
 #include "UI/main_window.h"
 #include "data_structs.h"
+#include "Modules/app_config.h"
 
 class ExpressionProcessor;
 class QThread;
@@ -30,10 +31,12 @@ class Controller : public QObject
     void responseReady();
     void requestQueueSizeChanged(quint64);
     void responseQueueSizeChanged(quint64);
+    void sendProcessMode(quint8);
 
   private:
     QVector<QPair<ExpressionProcessor*, QThread*>> expressionModules_;
-    MainWindow mainWindow;
+    MainWindow mainWindow_;
+    AppConfig  appConfig_;
 
     ThreadSafeQQueue<Calculator::Request>  requests_;
     ThreadSafeQQueue<Calculator::Response> responses_;

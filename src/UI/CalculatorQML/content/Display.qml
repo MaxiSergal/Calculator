@@ -9,11 +9,14 @@ Rectangle
     property real delaySeconds:   0.0
     property int  requestsCount:  0
     property int  responsesCount: 0
+    property int  currentMode:    1
 
     Layout.fillWidth: true
     Layout.minimumHeight: 100
     color: "#ffffff"
     border.color: "#cccccc"
+
+    signal clicked
 
     function addText(str)
     {
@@ -22,6 +25,11 @@ Rectangle
            case "−":
            {
                displayText.text += " − "
+               break;
+           }
+           case "-":
+           {
+               displayText.text += "-"
                break;
            }
            case "+":
@@ -94,7 +102,7 @@ Rectangle
             height: 26
             color: "#f0f0f0"
             border.color: "#aaaaaa"
-            radius: 0
+            radius: 3
 
             RowLayout
             {
@@ -125,7 +133,7 @@ Rectangle
                      {
                          id: upButton
                          buttonWidth:  15
-                         buttonHeight: 13
+                         buttonHeight: 10
                          buttonText:   "▲"
 
                          onClicked:
@@ -137,7 +145,7 @@ Rectangle
                      {
                          id: downButton
                          buttonWidth:  15
-                         buttonHeight: 13
+                         buttonHeight: 10
                          buttonText:   "▼"
 
                          onClicked:
@@ -147,6 +155,24 @@ Rectangle
                      }
                 }
             }
+
+            WheelHandler
+            {
+                target: delayBox
+                onWheel: function(event)
+                {
+                    if (event.angleDelta.y > 0)
+                    {
+                        upButton.clicked();
+                    }
+                    else if (event.angleDelta.y < 0)
+                    {
+                        downButton.clicked();
+                    }
+                    event.accepted = true;
+                }
+            }
+
         }
 
         Rectangle
@@ -157,7 +183,7 @@ Rectangle
             height: 26
             color: "#f0f0f0"
             border.color: "#aaaaaa"
-            radius: 0
+            radius: 3
 
             Text
             {
@@ -183,7 +209,7 @@ Rectangle
             height: 26
             color: "#f0f0f0"
             border.color: "#aaaaaa"
-            radius: 0
+            radius: 3
 
             Text
             {
@@ -200,5 +226,189 @@ Rectangle
             }
 
         }
+
+        Item
+        {
+            id: root
+
+            property int minButtonWidth:  70
+            property int minButtonHeight: 26
+
+
+            QtObject
+            {
+                id: enums
+                readonly property int dll:  0
+                readonly property int func: 1
+            }
+
+            property var colorArray: ["lightgrey", "white"]
+            property var buttonMode: ["DLL",       "FUNC"]
+            property string currentMode:  buttonMode[enums.func]
+            property string currentColor: colorArray[enums.func]
+
+            Layout.minimumWidth:  minButtonWidth
+            Layout.minimumHeight: minButtonHeight
+
+            Layout.preferredWidth:  Math.max(minButtonWidth, width)
+            Layout.preferredHeight: Math.max(minButtonHeight, height)
+
+            Layout.fillWidth:  true
+            Layout.fillHeight: true
+
+            signal clicked
+
+            Button
+            {
+                id: button
+
+                anchors.fill: parent
+                text:         root.currentMode
+
+                scale: pressed ? 0.90 : 1.0
+                Behavior on scale { NumberAnimation { duration: 100 } }
+
+                onClicked:
+                {
+                    if(root.currentMode === "FUNC")
+                    {
+                        root.currentMode    = root.buttonMode[enums.dll]
+                        root.currentColor   = root.colorArray[enums.dll]
+                        display.currentMode = 1
+                    }
+                    else
+                    {
+                        root.currentMode    = root.buttonMode[enums.func]
+                        root.currentColor   = root.colorArray[enums.func]
+                        display.currentMode = 0
+                    }
+
+                    display.clicked()
+                }
+
+                background: Rectangle
+                {
+                    anchors.fill: parent
+
+                    border.color: "#aaaaaa"
+                    color: root.currentColor
+                    radius:   3
+
+                    Rectangle
+                    {
+                       id: overlay
+
+                       anchors.fill: parent
+
+                       width:  parent.width
+                       height: parent.height
+                       radius: parent.radius
+                       color:  "black"
+
+                       opacity: button.pressed ? 0.05 : 0.0
+
+                       Behavior on opacity
+                       {
+                           NumberAnimation
+                           {
+                               duration: 150
+                               easing.type: Easing.OutQuad
+                           }
+                       }
+                   }
+                }
+
+                contentItem: Text
+                {
+                    text: button.text
+                    font: button.font
+                    color: "black"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.fill: parent
+                }
+            }
+        }
+
+        Item
+        {
+            id: help
+
+            property int minButtonWidth:  26
+            property int minButtonHeight: 26
+
+            Layout.minimumWidth:  minButtonWidth
+            Layout.minimumHeight: minButtonHeight
+
+            Layout.preferredWidth:  Math.max(minButtonWidth, width)
+            Layout.preferredHeight: Math.max(minButtonHeight, height)
+
+            Layout.fillWidth:  true
+            Layout.fillHeight: true
+
+            HelpWindow
+            {
+                id: helpWindow
+
+                posX: display.x
+                posY: display.y
+            }
+
+            Button
+            {
+                id: helpButton
+
+                anchors.fill: parent
+                text:         "?"
+
+                scale: pressed ? 0.90 : 1.0
+                Behavior on scale { NumberAnimation { duration: 100 } }
+
+                onClicked: helpWindow.show()
+
+                background: Rectangle
+                {
+                    anchors.fill: parent
+
+                    border.color: "#aaaaaa"
+                    color:        "#f0f0f0"
+                    radius:   3
+
+                    Rectangle
+                    {
+                       id: helpButtonOverlay
+
+                       anchors.fill: parent
+
+                       width:  parent.width
+                       height: parent.height
+                       radius: parent.radius
+                       color:  "black"
+
+                       opacity: helpButton.pressed ? 0.05 : 0.0
+
+                       Behavior on opacity
+                       {
+                           NumberAnimation
+                           {
+                               duration: 150
+                               easing.type: Easing.OutQuad
+                           }
+                       }
+                   }
+                }
+
+                contentItem: Text
+                {
+                    text: helpButton.text
+                    font: helpButton.font
+                    color: "black"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.fill: parent
+                }
+            }
+        }
+
     }
 }

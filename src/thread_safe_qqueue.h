@@ -29,7 +29,7 @@ class ThreadSafeQQueue
       return true;
     }
 
-    inline qsizetype size() { queue_.size(); }
+    inline qsizetype size() { return queue_.size(); }
 };
 
 #endif // THREADSAFEQQUEUE_H

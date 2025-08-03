@@ -19,9 +19,6 @@ Window
     property int lastW: width
     property int lastH: height
 
-    property real normalizedX: x / Screen.width
-    property real normalizedY: y / Screen.height
-
     minimumWidth: minButtonWidth * gridColumns + marginH * 2 + (gridColumns - 1) * buttonGridSpacingH
     minimumHeight: 620
     width: minimumWidth
@@ -68,6 +65,11 @@ Window
             Display
             {
                 id: display
+
+                onClicked: mainWindow.reveiveProcessMode(
+                               {
+                                   mode: display.currentMode
+                               })
             }
 
             GridLayout
@@ -106,7 +108,8 @@ Window
         }
     }
 
-    FocusScope {
+    FocusScope
+    {
         id: root
         focus: true
         Keys.onPressed: (event) =>
@@ -198,8 +201,15 @@ Window
                         removeLast()
                         break
                 }
-
                 event.accepted = true
+        }
+
+        onActiveFocusChanged:
+        {
+            if (!activeFocus)
+            {
+                root.forceActiveFocus()
+            }
         }
     }
 
@@ -213,56 +223,70 @@ Window
         target: mainWindow
         function onResponseChanged(response)
         {
-            console.log("Got response:", response.result, response.error_code);
+            console.log("Got response:", response.result, response.error_code, response.id);
+            mainConsole.appendToEntry(response.id, response.result, response.error_code === 1 ? Console.Colors.Green : Console.Colors.Red)
+        }
+        function onRequestQueueSizeChanged(size)
+        {
+            display.requestsCount = size;
+        }
+        function onResponseQueueSizeChanged(size)
+        {
+            display.responsesCount = size;
+        }
+        function onGeometryChanged(geometry)
+        {
+            mainWindowQml.setGeometry(geometry.x, geometry.y, geometry.width, geometry.height)
         }
     }
-
 
     function handleGeometryChange()
     {
         lastX = x
         lastY = y
-        normalizedX = x / Screen.width
-        normalizedY = y / Screen.height
         lastW = width
         lastH = height
-    }
 
-    function restorePosition(normX, normY)
-    {
-        x = normX * Screen.width
-        y = normY * Screen.height
+        mainWindow.receiveGeometry(
+        {
+            x: lastX,
+            y: lastY,
+            width: lastW,
+            height: lastH,
+        })
     }
 
     function addSymbol(sym)
     {
-        const ops = ["+", "−", "×", "÷"]
+        const ops = ["+", "−", "×", "÷", "="]
         let text = display.getText()
-
-        if(text.endsWith("="))
-        {
-            if(ops.includes(sym))
-            {
-                text = text.slice(0, -1).trim()
-            }
-            else
-            {
-                display.clearText()
-                text = ""
-            }
-        }
 
         const tokens = text.trim().split(/\s+/)
         const lastToken = tokens.length > 0 ? tokens[tokens.length - 1] : ""
+
+        if(sym === "−")
+        {
+            if(text === "" || ops.includes(lastToken))
+            {
+                display.addText("-")
+                return true
+            }
+
+            if (lastToken === "-")
+                return false
+
+            display.addText("−")
+            return true
+        }
 
         if(ops.includes(sym))
         {
             if(text === "" || ops.includes(lastToken))
             {
-                return
+                return false
             }
             display.addText(" " + sym + " ")
-            return
+            return true
         }
 
         if(sym === ".")
@@ -270,7 +294,7 @@ Window
             const currentNumber = ops.includes(lastToken) ? "" : lastToken
             if(currentNumber.includes("."))
             {
-                return
+                return false
             }
             if(currentNumber === "")
             {
@@ -280,10 +304,12 @@ Window
             {
                 display.addText(".")
             }
-            return
+            return true
         }
 
         display.addText(sym)
+
+        return true
     }
 
     function removeLast()
@@ -295,24 +321,23 @@ Window
     {
         if(display.getText() === "")
             return
-        if(display.getText()[display.getText().length - 2] === "=")
+        if(!addSymbol("="))
             return
         try
         {
-            addSymbol("=")
-
             let evalExpr = display.getText()
                 .replace(/×/g, "*")
                 .replace(/÷/g, "/")
                 .replace(/−/g, "-")
 
 
-            mainConsole.addText(display.getText(), mainConsole.Color.Red)
+            let id = mainConsole.addEntry(display.getText(), Console.Colors.Blue)
             mainWindow.receiveRequest(
             {
                 expression: evalExpr,
                 delay: display.delaySeconds,
-                error_code: 0
+                error_code: 0,
+                id: id
             })
             clearExpression()
         }

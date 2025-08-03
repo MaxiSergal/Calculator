@@ -44,6 +44,7 @@ void MainWindow::receiveRequest(const QJSValue &jsRequest)
   req.expression = jsRequest.property("expression").toString();
   req.delay      = jsRequest.property("delay").toNumber();
   req.error_code = jsRequest.property("error_code").toInt();
+  req.id         = jsRequest.property("id").toUInt();
 
   emit sendRequest(req);
 }
@@ -59,6 +60,7 @@ void MainWindow::receiveResponse(const QJSValue &jsResponse)
   Calculator::Response res;
   res.result     = jsResponse.property("result").toString();
   res.error_code = jsResponse.property("error_code").toInt();
+  res.id         = jsResponse.property("id").toUInt();
 }
 
 void MainWindow::receiveGeometry(const QJSValue &jsGeometry)
@@ -74,8 +76,19 @@ void MainWindow::receiveGeometry(const QJSValue &jsGeometry)
   geo.y           = jsGeometry.property("y").toInt();
   geo.width       = jsGeometry.property("width").toInt();
   geo.height      = jsGeometry.property("height").toInt();
-  geo.normalizedX = jsGeometry.property("normalizedX").toNumber();
-  geo.normalizedY = jsGeometry.property("normalizedY").toNumber();
+
+  emit sendGeometry(geo);
+}
+
+void MainWindow::reveiveProcessMode(const QJSValue &jsPMode)
+{
+  if (!jsPMode.isObject())
+  {
+    qWarning() << "receiveRequest: Not an object";
+    return;
+  }
+
+  emit sendProcessMode(jsPMode.property("mode").toUInt());
 }
 
 void MainWindow::setResponseToQml()
@@ -83,27 +96,22 @@ void MainWindow::setResponseToQml()
   Calculator::Response response;
   emit getResponse(&response);
 
-  // qDebug() << response.result << response.error_code;
   QVariantMap res;
-
   res["result"]     = response.result;
   res["error_code"] = response.error_code;
+  res["id"]         = response.id;
 
   emit responseChanged(res);
 }
 
-void MainWindow::setGeometryToQml()
+void MainWindow::setGeometryToQml(Calculator::AppGeometry geometry)
 {
-  Calculator::AppGeometry geometry;
-  // emit getGeo
   QVariantMap geo;
 
   geo["x"]           = geometry.x;
   geo["y"]           = geometry.y;
   geo["width"]       = geometry.width;
   geo["height"]      = geometry.height;
-  geo["normalizedX"] = geometry.normalizedX;
-  geo["normalizedY"] = geometry.normalizedY;
 
   emit geometryChanged(geo);
 }
