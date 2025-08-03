@@ -89,7 +89,7 @@ void MainWindow::reveiveProcessMode(const QJSValue &jsPMode)
     return;
   }
 
-  emit sendProcessMode(jsPMode.property("mode").toUInt());
+  emit sendProcessMode(static_cast<quint8>(jsPMode.property("mode").toUInt()));
 }
 
 void MainWindow::setResponseToQml()

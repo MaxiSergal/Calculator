@@ -14,7 +14,7 @@ class MainWindow : public QObject
     Q_OBJECT
 
   public:
-    MainWindow(QObject * = nullptr);
+    explicit MainWindow(QObject * = nullptr);
 
     bool loadQml(const QUrl &qmlUrl);
     inline QQmlApplicationEngine* engine() { return &engine_; }
@@ -28,13 +28,6 @@ class MainWindow : public QObject
   signals:
     void requestQueueSizeChanged(qsizetype);
     void responseQueueSizeChanged(qsizetype);
-
-
-
-
-
-
-
 
     void sendRequest(Calculator::Request);
     void sendGeometry(Calculator::AppGeometry);

@@ -261,40 +261,44 @@ Window
 
     function addSymbol(sym)
     {
-        const ops = ["+", "−", "×", "÷", "="]
-        let text = display.getText()
+        let text  = display.getText()
 
-        const tokens = text.trim().split(/\s+/)
+        const tokens    = text.trim().split(/\s+/)
         const lastToken = tokens.length > 0 ? tokens[tokens.length - 1] : ""
 
-        if(sym === "−")
+        if(sym === "−") // Большой минус
         {
-            if(text === "" || ops.includes(lastToken))
+            if(isSign(lastToken)) // маленький минус
+                return false
+
+            if(isOperator(lastToken) || text === "")
             {
-                display.addText("-")
+                display.addText("-") // маленький минус
                 return true
             }
 
-            if(lastToken === "-")
+            if(isDotEnd(lastToken))
                 return false
 
-            display.addText("−")
+            display.addText("−") // Большой минус
+
             return true
         }
 
-        if(ops.includes(sym))
+        if(isOperator(sym))
         {
-            if(text === "" || ops.includes(lastToken))
+            if(isOperator(lastToken) || isDotEnd(lastToken) || isSign(lastToken) || text === "")
             {
                 return false
             }
-            display.addText(" " + sym + " ")
+
+            display.addText(sym)
             return true
         }
 
-        if(sym === ".")
+        if(isDotEnd(sym))
         {
-            const currentNumber = ops.includes(lastToken) ? "" : lastToken
+            const currentNumber = (isOperator(lastToken) || isSign(lastToken)) ? "" : lastToken
             if(currentNumber.includes("."))
             {
                 return false
@@ -313,6 +317,22 @@ Window
         display.addText(sym)
 
         return true
+    }
+
+    function isOperator(sym)
+    {
+        const ops = ["+", "−", "×", "÷", "="]
+        return ops.includes(sym)
+    }
+
+    function isDotEnd(token)
+    {
+        return token.endsWith(".")
+    }
+
+    function isSign(sym)
+    {
+        return sym === "-"
     }
 
     function removeLast()

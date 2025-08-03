@@ -13,8 +13,8 @@ AppConfig::AppConfig(QObject *parent) : QObject(parent)
       dir.setPath(QFileInfo(reserveFilePath_).absolutePath());
       if(!dir.mkpath("."))
       {
-        badFile    = true;
-        actualPath = ActualPath::None;
+        badFile_    = true;
+        actualPath_ = ActualPath::None;
       }
     }
   }
@@ -32,24 +32,24 @@ AppConfig::AppConfig(QObject *parent) : QObject(parent)
         file_.setFileName(reserveFileName);
         if(!file_.open(QIODevice::WriteOnly))
         {
-          badFile = true;
-          actualPath = ActualPath::None;
+          badFile_ = true;
+          actualPath_ = ActualPath::None;
         }
         else
         {
           file_.close();
-          actualPath = ActualPath::Reserve;
+          actualPath_ = ActualPath::Reserve;
         }
       }
     }
     else
     {
       file_.close();
-      actualPath = ActualPath::Default;
+      actualPath_ = ActualPath::Default;
     }
   }
 
-  switch(actualPath)
+  switch(actualPath_)
   {
     case ActualPath::Default:
     {
@@ -63,7 +63,7 @@ AppConfig::AppConfig(QObject *parent) : QObject(parent)
     }
     case ActualPath::None:
     {
-      badFile = true;
+      badFile_ = true;
       break;
     }
   }
@@ -71,13 +71,13 @@ AppConfig::AppConfig(QObject *parent) : QObject(parent)
 
 void AppConfig::setGeometry(Calculator::AppGeometry geometry)
 {
-  this->geometry = geometry;
-  isChangedGerometry = true;
+  this->geometry_ = geometry;
+  isChangedGerometry_ = true;
 }
 
 qint64 AppConfig::readFileGeometry()
 {
-  if(badFile)
+  if(badFile_)
     throw std::logic_error("Файл не существует или не создан");
 
   Calculator::AppGeometry geometry;
@@ -100,16 +100,16 @@ qint64 AppConfig::readFileGeometry()
 
 qint64 AppConfig::writeAppGeometry()
 {
-  if(!isChangedGerometry)
+  if(!isChangedGerometry_)
     return 0;
 
-  if(badFile)
+  if(badFile_)
     throw std::logic_error("Файл не существует или не создан");
 
   if(!file_.open(QIODevice::WriteOnly | QIODevice::Truncate))
     throw std::logic_error("Файл не был открыт для записи");
 
-  qint64 writeBytes = file_.write(reinterpret_cast<const char*>(&geometry), sizeof(Calculator::AppGeometry));
+  qint64 writeBytes = file_.write(reinterpret_cast<const char*>(&geometry_), sizeof(Calculator::AppGeometry));
   if(!writeBytes)
   {
     file_.close();

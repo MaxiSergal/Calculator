@@ -12,6 +12,14 @@ set(UI_DIR "src/UI")
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+add_compile_options(
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Wconversion
+    -Wshadow
+)
+
 find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Qml Quick)
 
 if(Qt6_VERSION VERSION_GREATER_EQUAL 6.3)

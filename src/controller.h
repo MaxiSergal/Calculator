@@ -17,20 +17,20 @@ class Controller : public QObject
     Q_OBJECT
 
   public:
-    Controller(QObject * = nullptr);
+    explicit Controller(QObject * = nullptr);
     ~Controller();
 
   public slots:
-    void addRequest(const Calculator::Request &);
-    void addResponse(const Calculator::Response &);
+    void addRequest(Calculator::Request);
+    void addResponse(Calculator::Response);
     void getRequest(Calculator::Request * const);
     void getResponse(Calculator::Response * const);
 
   signals:
     void requestReady();
     void responseReady();
-    void requestQueueSizeChanged(quint64);
-    void responseQueueSizeChanged(quint64);
+    void requestQueueSizeChanged(qsizetype);
+    void responseQueueSizeChanged(qsizetype);
     void sendProcessMode(quint8);
     void sendInfoMessage(Calculator::AppInfoMessage);
 

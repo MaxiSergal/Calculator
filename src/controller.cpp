@@ -100,7 +100,8 @@ try : QObject(parent)
 }
 catch(...)
 {
-  qDebug() << "ExceptioN!";
+  qWarning() << "ExceptioN in controller!";
+  throw;
 }
 
 Controller::~Controller()
@@ -132,14 +133,14 @@ Controller::~Controller()
   }
 }
 
-void Controller::addRequest(const Calculator::Request &request)
+void Controller::addRequest(Calculator::Request request)
 {
   requests_.enqueue(request);
   emit requestQueueSizeChanged(requests_.size());
   emit requestReady();
 }
 
-void Controller::addResponse(const Calculator::Response &response)
+void Controller::addResponse(Calculator::Response response)
 {
   responses_.enqueue(response);
   emit responseQueueSizeChanged(responses_.size());

@@ -8,7 +8,7 @@ Rectangle
 
     property var entries:    []
     property var colorArray: ["blue", "green", "red"]
-    property int maxLines:   50
+    property int maxLines:   100
     property int nextId:     1
 
     enum Colors

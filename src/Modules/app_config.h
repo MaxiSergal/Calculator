@@ -14,7 +14,7 @@ class AppConfig : public QObject
     enum ActualPath { Default, Reserve, None};
 
   public:
-    AppConfig(QObject * = nullptr);
+    explicit AppConfig(QObject * = nullptr);
 
   public slots:
     void   setGeometry(Calculator::AppGeometry);
@@ -30,11 +30,11 @@ class AppConfig : public QObject
     QString defaultFilePath_ = "/.config/CalculatorApp/";
     QString reserveFilePath_ = "/";
 
-    bool       badFile            = false;
-    bool       isChangedGerometry = false;
-    ActualPath actualPath         = ActualPath::Default;
+    bool       badFile_            = false;
+    bool       isChangedGerometry_ = false;
+    ActualPath actualPath_         = ActualPath::Default;
 
-    Calculator::AppGeometry geometry;
+    Calculator::AppGeometry geometry_;
 };
 
 #endif // APPCONFIG_H

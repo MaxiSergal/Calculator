@@ -11,8 +11,6 @@ class ThreadSafeQQueue
     QQueue<T> queue_;
     QMutex mutex_;
 
-    // Добавить конструкторы
-
   public:
     void enqueue(const T &item)
     {
@@ -29,7 +27,7 @@ class ThreadSafeQQueue
       return true;
     }
 
-    inline qsizetype size() { return queue_.size(); }
+    inline qsizetype size() { QMutexLocker lock(&mutex_); return queue_.size(); }
 };
 
 #endif // THREADSAFEQQUEUE_H

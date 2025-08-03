@@ -3,7 +3,6 @@
 #include <QStringList>
 #include <QThread>
 #include <QString>
-#include <QDebug>
 
 static int getOps(QChar ch)
 {
@@ -36,7 +35,7 @@ void ExpressionProcessor::parseExpression() noexcept(false)
   if(request.error_code == -2)
     return;
 
-  QThread::sleep(request.delay);
+  QThread::msleep(static_cast<unsigned int>(request.delay * 1000));
 
   static QRegularExpression regExp("(?<=[0-9])[+\\-*/=]");
   QString                   expression = request.expression;
