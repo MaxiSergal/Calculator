@@ -64,4 +64,7 @@
 **double DoIt(int TypeWork, double OperandA, double OperandB)** — своим методом, в случае, если задан **Встроенный режим** или **double externalDoItFunc(int TypeWork, double OperandA, double OperandB)**, если задан **Внешний режим**. Результат, каким бы он не был, передается **контроллеру**, 
 который помещает его в очередь ответов и уведомляет об этом **MainWindow**. **MainWindow** извлекает ответ и выводит его на **элемент консоли**.
 
-  
+## Запуск
+
+- **CMake** — стандратная сборка через CMake файл.
+- **CalculatorAppDelpoy** — дать права на исполнение скрипту /CalculatorAppDelpoy/CalculatorApp.sh и исполняемомум файлу /CalculatorAppDelpoy/bin/CalculatorApp. Возможно понадобится скачать libxcb-cursor0, в случае отсутствия. Запустить скрипт /CalculatorAppDelpoy/CalculatorApp.sh.
