@@ -60,7 +60,7 @@ Item
                {
                    NumberAnimation
                    {
-                       duration: 150
+                       duration:    150
                        easing.type: Easing.OutQuad
                    }
                }
@@ -69,13 +69,15 @@ Item
 
         contentItem: Text
         {
-            text: button.text
-            font: button.font
+            text:  button.text
+            font:  button.font
             color: "black"
+
             horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+            verticalAlignment:   Text.AlignVCenter
+            elide:               Text.ElideRight
+
             anchors.fill: parent
-            elide: Text.ElideRight
         }
     }
 }

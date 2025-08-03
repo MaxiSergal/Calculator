@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     QObject::connect(
                 &engine, &QQmlApplicationEngine::objectCreated, &app,
                 [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
+        if(!obj && url == objUrl)
             QCoreApplication::exit(-1);
     },
     Qt::QueuedConnection);
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
-    if (engine.rootObjects().isEmpty()) {
+    if(engine.rootObjects().isEmpty()) {
         return -1;
     }
 

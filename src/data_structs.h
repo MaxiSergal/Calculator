@@ -28,10 +28,17 @@ namespace Calculator
       int width  {0};
       int height {0};
   };
+
+  struct AppInfoMessage
+  {
+    QString message;
+    int     error_code {0};
+  };
 }
 
 Q_DECLARE_METATYPE(Calculator::Request)
 Q_DECLARE_METATYPE(Calculator::Response)
 Q_DECLARE_METATYPE(Calculator::AppGeometry)
+Q_DECLARE_METATYPE(Calculator::AppInfoMessage)
 
 #endif // DATASTRUCTS_H

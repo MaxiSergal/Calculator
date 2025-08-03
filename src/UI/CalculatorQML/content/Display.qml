@@ -161,11 +161,11 @@ Rectangle
                 target: delayBox
                 onWheel: function(event)
                 {
-                    if (event.angleDelta.y > 0)
+                    if(event.angleDelta.y > 0)
                     {
                         upButton.clicked();
                     }
-                    else if (event.angleDelta.y < 0)
+                    else if(event.angleDelta.y < 0)
                     {
                         downButton.clicked();
                     }
@@ -349,9 +349,6 @@ Rectangle
             HelpWindow
             {
                 id: helpWindow
-
-                posX: display.x
-                posY: display.y
             }
 
             Button

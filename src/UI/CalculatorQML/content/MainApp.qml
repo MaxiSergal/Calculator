@@ -37,7 +37,7 @@ Window
         {text: "6",  collor1: "#e4e2e0", collor2: "#e4e2e0", action: function() { addSymbol("6") }}, {text: "−", collor1: "#b4b4b4", collor2: "#b4b4b4", action: function() { addSymbol("−")       }},
         {text: "1",  collor1: "#e4e2e0", collor2: "#e4e2e0", action: function() { addSymbol("1") }}, {text: "2", collor1: "#e4e2e0", collor2: "#e4e2e0", action: function() { addSymbol("2")       }},
         {text: "3",  collor1: "#e4e2e0", collor2: "#e4e2e0", action: function() { addSymbol("3") }}, {text: "+", collor1: "#b4b4b4", collor2: "#b4b4b4", action: function() { addSymbol("+")       }},
-        {text: "±",  collor1: "#b4b4b4", collor2: "#b4b4b4", action: function() { addSymbol("±") }}, {text: "0", collor1: "#e4e2e0", collor2: "#e4e2e0", action: function() { addSymbol("0")       }},
+        {text: "±",  collor1: "#b4b4b4", collor2: "#b4b4b4", action: function() { reverseSign()  }}, {text: "0", collor1: "#e4e2e0", collor2: "#e4e2e0", action: function() { addSymbol("0")       }},
         {text: ".",  collor1: "#b4b4b4", collor2: "#b4b4b4", action: function() { addSymbol(".") }}, {text: "=", collor1: "#b4b4b4", collor2: "#b4b4b4", action: function() { evaluateExpression() }}
     ]
 
@@ -206,7 +206,7 @@ Window
 
         onActiveFocusChanged:
         {
-            if (!activeFocus)
+            if(!activeFocus)
             {
                 root.forceActiveFocus()
             }
@@ -223,7 +223,6 @@ Window
         target: mainWindow
         function onResponseChanged(response)
         {
-            console.log("Got response:", response.result, response.error_code, response.id);
             mainConsole.appendToEntry(response.id, response.result, response.error_code === 1 ? Console.Colors.Green : Console.Colors.Red)
         }
         function onRequestQueueSizeChanged(size)
@@ -237,6 +236,10 @@ Window
         function onGeometryChanged(geometry)
         {
             mainWindowQml.setGeometry(geometry.x, geometry.y, geometry.width, geometry.height)
+        }
+        function onInfoMessageChanged(message)
+        {
+            mainConsole.addEntry(message.message, message.error_code === 1 ? Console.Colors.Green : Console.Colors.Red)
         }
     }
 
@@ -272,7 +275,7 @@ Window
                 return true
             }
 
-            if (lastToken === "-")
+            if(lastToken === "-")
                 return false
 
             display.addText("−")
@@ -323,30 +326,87 @@ Window
             return
         if(!addSymbol("="))
             return
-        try
+
+        let evalExpr = display.getText()
+            .replace(/×/g, "*")
+            .replace(/÷/g, "/")
+            .replace(/−/g, "-")
+
+
+        let id = mainConsole.addEntry(display.getText(), Console.Colors.Blue)
+        mainWindow.receiveRequest(
         {
-            let evalExpr = display.getText()
-                .replace(/×/g, "*")
-                .replace(/÷/g, "/")
-                .replace(/−/g, "-")
+            expression: evalExpr,
+            delay: display.delaySeconds,
+            error_code: 0,
+            id: id
+        })
+        clearExpression()
+    }
 
+    function reverseSign()
+    {
+        let text  = display.getText()
+        const ops = ["+", "−", "×", "÷", "="]
 
-            let id = mainConsole.addEntry(display.getText(), Console.Colors.Blue)
-            mainWindow.receiveRequest(
-            {
-                expression: evalExpr,
-                delay: display.delaySeconds,
-                error_code: 0,
-                id: id
-            })
-            clearExpression()
+        if(text === "")
+        {
+            addSymbol("-")
+            return
         }
-        catch(e)
+
+        let tokens    = text.split(/\s+/)
+        let lastToken = tokens[tokens.length - 1]
+
+        if(lastToken === "-")
         {
-            console.log(e)
-            // displayText.text = "Ошибка"
-            // consoleTextArea.text += ">> Ошибка в выражении\n"
-            // expression = ""
+            display.removeLast()
+            return
+        }
+
+        if(lastToken === "")
+        {
+            addSymbol("-")
+            return
+        }
+
+        function isNumber(str)
+        {
+            return /^-?\d*\.?\d+$/.test(str)
+        }
+
+        if(isNumber(lastToken))
+        {
+            let newNumber = null
+            if(lastToken.startsWith("-"))
+                newNumber = lastToken.substring(1)
+            else
+                newNumber = "-" + lastToken
+
+            for(let i = 0; i < lastToken.length; i++)
+                display.removeLast()
+
+            for(let ch of newNumber)
+                display.addText(ch)
+
+            return
+        }
+
+        if(ops.includes(lastToken))
+        {
+            let prevToken = tokens.length >= 2 ? tokens[tokens.length - 2] : ""
+
+            if(prevToken === "-")
+            {
+                display.removeLast()
+                display.removeLast()
+                return
+            }
+            else
+            {
+                addSymbol("-")
+                return
+            }
         }
     }
 

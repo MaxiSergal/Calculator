@@ -1,10 +1,11 @@
 #ifndef EXPRESSIONPROCESSOR_H
 #define EXPRESSIONPROCESSOR_H
 
+#include <QRegularExpression>
+#include <QLibrary>
 #include <QObject>
 #include <QString>
 #include <QThread>
-#include <QRegularExpression>
 
 #include "../data_structs.h"
 
@@ -14,13 +15,15 @@ class ExpressionProcessor : public QObject
 {
     Q_OBJECT
 
-    quint8 mode = 0;
-    static DoItFunction externalDoItFunc;
+    quint8       mode_             = 0;
+    DoItFunction externalDoItFunc_ = nullptr;
+
+    QLibrary lib_;
 
   public:
     explicit ExpressionProcessor(QObject * = nullptr);
 
-    static bool loadExternalDoIt(const QString &);
+    bool loadExternalDoIt(const QString &);
 
   private:
     double DoIt(int TypeWork, double OperandA, double OperandB) noexcept(false);

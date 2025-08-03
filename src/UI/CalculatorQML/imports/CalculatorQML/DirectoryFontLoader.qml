@@ -23,9 +23,9 @@ QtObject {
         showDirs: false
 
         onStatusChanged: {
-            if (folderModel.status == FolderListModel.Ready) {
+            if(folderModel.status == FolderListModel.Ready) {
                 var i
-                for (i = 0; i < count; i++) {
+                for(i = 0; i < count; i++) {
                     loadFont(folderModel.get(i, "fileURL"))
                 }
             }

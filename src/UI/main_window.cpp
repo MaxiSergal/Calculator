@@ -8,6 +8,7 @@ MainWindow::MainWindow(QObject *parent) : QObject(parent)
   qRegisterMetaType<Calculator::Request>("Calculator::Request");
   qRegisterMetaType<Calculator::Response>("Calculator::Response");
   qRegisterMetaType<Calculator::AppGeometry>("Calculator::AppGeometry");
+  qRegisterMetaType<Calculator::AppInfoMessage>("Calculator::AppInfoMessage");
 }
 
 bool MainWindow::loadQml(const QUrl &qmlUrl)
@@ -17,7 +18,7 @@ bool MainWindow::loadQml(const QUrl &qmlUrl)
   QObject::connect(&engine_, &QQmlApplicationEngine::objectCreated,
       this, [qmlUrl](QObject *obj, const QUrl &objUrl)
       {
-        if (!obj && objUrl == qmlUrl)
+        if(!obj && objUrl == qmlUrl)
         {
           qWarning("Failed to load QML file: %s", qPrintable(qmlUrl.toString()));
           QCoreApplication::exit(-1);
@@ -34,7 +35,7 @@ bool MainWindow::loadQml(const QUrl &qmlUrl)
 
 void MainWindow::receiveRequest(const QJSValue &jsRequest)
 {
-  if (!jsRequest.isObject())
+  if(!jsRequest.isObject())
   {
     qWarning() << "receiveRequest: Not an object";
     return;
@@ -51,7 +52,7 @@ void MainWindow::receiveRequest(const QJSValue &jsRequest)
 
 void MainWindow::receiveResponse(const QJSValue &jsResponse)
 {
-  if (!jsResponse.isObject())
+  if(!jsResponse.isObject())
   {
     qWarning() << "receiveRequest: Not an object";
     return;
@@ -65,7 +66,7 @@ void MainWindow::receiveResponse(const QJSValue &jsResponse)
 
 void MainWindow::receiveGeometry(const QJSValue &jsGeometry)
 {
-  if (!jsGeometry.isObject())
+  if(!jsGeometry.isObject())
   {
     qWarning() << "receiveRequest: Not an object";
     return;
@@ -82,7 +83,7 @@ void MainWindow::receiveGeometry(const QJSValue &jsGeometry)
 
 void MainWindow::reveiveProcessMode(const QJSValue &jsPMode)
 {
-  if (!jsPMode.isObject())
+  if(!jsPMode.isObject())
   {
     qWarning() << "receiveRequest: Not an object";
     return;
@@ -94,7 +95,11 @@ void MainWindow::reveiveProcessMode(const QJSValue &jsPMode)
 void MainWindow::setResponseToQml()
 {
   Calculator::Response response;
+
   emit getResponse(&response);
+
+  if(response.error_code == -2)
+    return;
 
   QVariantMap res;
   res["result"]     = response.result;
@@ -114,5 +119,15 @@ void MainWindow::setGeometryToQml(Calculator::AppGeometry geometry)
   geo["height"]      = geometry.height;
 
   emit geometryChanged(geo);
+}
+
+void MainWindow::setInfoMessageToQml(Calculator::AppInfoMessage message)
+{
+  QVariantMap info;
+
+  info["message"]    = message.message;
+  info["error_code"] = message.error_code;
+
+  emit infoMessageChanged(info);
 }
 

@@ -1,7 +1,6 @@
 #include "expression_processor.h"
 
 #include <QStringList>
-#include <QLibrary>
 #include <QThread>
 #include <QString>
 #include <QDebug>
@@ -22,8 +21,6 @@ static int getOps(QChar ch)
     return -1;
 }
 
-DoItFunction ExpressionProcessor::externalDoItFunc = nullptr;
-
 ExpressionProcessor::ExpressionProcessor(QObject *parent) : QObject(parent)
 {
 
@@ -33,11 +30,15 @@ void ExpressionProcessor::parseExpression() noexcept(false)
 {
   Calculator::Response response;
   Calculator::Request  request;
+
   emit getRequest(&request);
+
+  if(request.error_code == -2)
+    return;
 
   QThread::sleep(request.delay);
 
-  static QRegularExpression regExp("[+\\-*/=]");
+  static QRegularExpression regExp("(?<=[0-9])[+\\-*/=]");
   QString                   expression = request.expression;
   expression.remove(' ');
 
@@ -55,17 +56,10 @@ void ExpressionProcessor::parseExpression() noexcept(false)
 
       auto right = expression.left(idx).toDouble(&isOk);
       if(!isOk)
-      {
-        idx = expression.indexOf(regExp, idx + 1);
-        if(idx == -1)
-          throw std::logic_error("{ Неизвестная операция в выражении }");
-        right = expression.left(idx).toDouble(&isOk);
-        if(!isOk)
-          throw std::logic_error("{ Не уадось привести число " + expression.left(idx).toStdString() + " к double }");
-      }
+        throw std::logic_error("{ Не уадось привести число " + expression.left(idx).toStdString() + " к double }");
 
-      if(externalDoItFunc != nullptr && mode)
-        result = externalDoItFunc(ops, result, right);
+      if(externalDoItFunc_ != nullptr && mode_)
+        result = externalDoItFunc_(ops, result, right);
       else
         result = DoIt(ops, result, right);
 
@@ -82,7 +76,7 @@ void ExpressionProcessor::parseExpression() noexcept(false)
     response.error_code = -1;
   }
 
-  if(externalDoItFunc != nullptr && mode)
+  if(externalDoItFunc_ != nullptr && mode_)
     response.result += " {DLL MODE}";
   else
     response.result += " {FUNC MODE}";
@@ -93,8 +87,7 @@ void ExpressionProcessor::parseExpression() noexcept(false)
 
 void ExpressionProcessor::setProcessMode(quint8 mode)
 {
-  this->mode = mode;
-  qDebug() << "Mode:" << this->mode;
+  mode_ = mode;
 }
 
 double ExpressionProcessor::DoIt(int TypeWork, double OperandA, double OperandB) noexcept(false)
@@ -140,22 +133,14 @@ double ExpressionProcessor::DoIt(int TypeWork, double OperandA, double OperandB)
 
 bool ExpressionProcessor::loadExternalDoIt(const QString &path)
 {
-  QLibrary lib(path);
+  lib_.setFileName(path);
 
-  if (!lib.load())
-  {
-    qWarning() << "Не удалось загрузить библиотеку:" << lib.errorString();
+  if(!lib_.load())
     return false;
-  }
 
-  externalDoItFunc = (DoItFunction)lib.resolve("DoIt");
-  if (!externalDoItFunc)
-  {
-    qWarning() << "Функция DoIt не найдена:" << lib.errorString();
-    lib.unload();
+  externalDoItFunc_ = (DoItFunction)lib_.resolve("DoIt");
+  if(!externalDoItFunc_)
     return false;
-  }
 
-  qDebug() << "Библиотека и функция DoIt успешно загружены";
   return true;
 }

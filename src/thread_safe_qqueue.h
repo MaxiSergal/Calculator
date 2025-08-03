@@ -23,7 +23,7 @@ class ThreadSafeQQueue
     bool tryDequeue(T &out)
     {
       QMutexLocker lock(&mutex_);
-      if (queue_.isEmpty())
+      if(queue_.isEmpty())
         return false;
       out = queue_.dequeue();
       return true;

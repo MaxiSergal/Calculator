@@ -6,12 +6,12 @@ AppConfig::AppConfig(QObject *parent) : QObject(parent)
 {
   QDir dir(QDir::homePath() + defaultFilePath_);
 
-  if (!dir.exists())
+  if(!dir.exists())
   {
-    if (!dir.mkpath("."))
+    if(!dir.mkpath("."))
     {
       dir.setPath(QFileInfo(reserveFilePath_).absolutePath());
-      if (!dir.mkpath("."))
+      if(!dir.mkpath("."))
       {
         badFile    = true;
         actualPath = ActualPath::None;

@@ -44,10 +44,12 @@ class MainWindow : public QObject
 
     void responseChanged(QVariantMap);
     void geometryChanged(QVariantMap);
+    void infoMessageChanged(QVariantMap);
 
   public slots:
     void setResponseToQml();
     void setGeometryToQml(Calculator::AppGeometry);
+    void setInfoMessageToQml(Calculator::AppInfoMessage);
 
   private:
     QQmlApplicationEngine engine_;
