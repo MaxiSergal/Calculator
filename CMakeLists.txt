@@ -12,6 +12,8 @@ set(UI_DIR "src/UI")
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
 add_compile_options(
     -Wall
     -Wextra
